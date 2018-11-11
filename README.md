@@ -1,8 +1,4 @@
-# Minimum frontend
-
-- yarn
-- parcel
-- typescript
+# redux-workerized-example
 
 ## How to dev
 

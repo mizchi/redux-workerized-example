@@ -1,24 +1,39 @@
 import "@babel/polyfill";
-import { WorkerizedStore } from "redux-workerized";
+import React, { useCallback } from "react";
+import ReactDOM from "react-dom";
 import { createWorkerContext } from "redux-workerized/react";
-import * as Comlink from "comlinkjs";
+import { RootState } from "./reducer";
 
-// This is counter example. Use your reducer.
-import { RootState, increment, Increment } from "./reducer";
+const worker = new Worker("./worker.ts");
+const {
+  WorkerizedStoreContext,
+  useSelector,
+  useDispatch,
+  ready
+} = createWorkerContext<RootState>(worker);
 
-// Use webpack's worker-loader or parcel to build worker instance and cast
-const store: WorkerizedStore<RootState> = Comlink.proxy(
-  new Worker("./worker.ts")
-) as any;
+// Components
 
-store.subscribe(
-  Comlink.proxyValue((newState: RootState) => {
-    console.log("changed", newState);
-  })
-);
+import { increment, Increment } from "./reducer";
+function CounterApp() {
+  const counter = useSelector(state => state.counter);
+  const dispatch = useDispatch<Increment>();
 
-(async () => {
-  await store.dispatch(increment());
-  const currentState = await store.getState();
-  console.log("current state", currentState);
-})();
+  const onClick = useCallback(() => {
+    dispatch(increment());
+  }, []);
+
+  return <button onClick={onClick}>{counter.value}</button>;
+}
+
+export function App() {
+  return (
+    <WorkerizedStoreContext>
+      <CounterApp />
+    </WorkerizedStoreContext>
+  );
+}
+
+ready.then(() => {
+  ReactDOM.render(<App />, document.querySelector(".root"));
+});
