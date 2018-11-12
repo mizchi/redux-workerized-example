@@ -17,6 +17,6 @@
     "react": "16.7.0-alpha.0",
     "react-dom": "16.7.0-alpha.0",
     "redux": "^4.0.1",
-    "redux-workerized": "^0.0.7"
+    "redux-workerized": "^0.0.8"
   }
 }
